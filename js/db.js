@@ -8,7 +8,7 @@ import {
   collection, doc,
   addDoc, updateDoc, deleteDoc,
   onSnapshot, query, orderBy, where,
-  serverTimestamp, getDoc, getDocs,
+  serverTimestamp, getDoc, getDocs, writeBatch,
 } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
 // ============================================================
@@ -90,6 +90,31 @@ export async function updateKlient(id, data) {
 
 export async function deleteKlient(id) {
   return deleteDoc(doc(db, 'klienci', id));
+}
+
+/**
+ * Synchronizuje dane klienta we wszystkich jego zamówieniach.
+ * Wywołaj po updateKlient gdy zmieniły się pola kontaktowe/adresowe.
+ * @param {string} klientId
+ * @param {{ imie, nazwisko, telefon, dostawa, adresDost }} klientData
+ */
+export async function syncKlientInZamowienia(klientId, klientData) {
+  const q = query(collection(db, 'zamowienia'), where('klientId', '==', klientId));
+  const snap = await getDocs(q);
+  if (snap.empty) return;
+
+  const batch = writeBatch(db);
+  snap.docs.forEach(docSnap => {
+    batch.update(doc(db, 'zamowienia', docSnap.id), {
+      klientImie:     klientData.imie      || '',
+      klientNazwisko: klientData.nazwisko  || '',
+      klientTelefon:  klientData.telefon   || '',
+      klientDostawa:  klientData.dostawa   ?? false,
+      klientAdres:    klientData.adresDost || '',
+      updatedAt:      serverTimestamp(),
+    });
+  });
+  await batch.commit();
 }
 
 // ============================================================

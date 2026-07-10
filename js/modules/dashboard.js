@@ -48,7 +48,7 @@ export async function mount(container) {
   container.innerHTML = `
     <div class="page-header">
       <div>
-        <h1 class="page-title">Dashboard</h1>
+        <h1 class="page-title">Pulpit</h1>
         <p class="page-subtitle" id="db-subtitle">Ładowanie…</p>
       </div>
     </div>

@@ -328,6 +328,12 @@ function renderSprzedazCard(o) {
             <button class="btn btn-success btn-sm"
                     data-sp-action="wydaj" data-id="${o.id}">✅ Wydaj</button>
           ` : ''}
+          ${o.status === 'wydano' ? `
+            <button class="btn btn-secondary btn-sm"
+                    data-sp-action="koryguj" data-id="${o.id}">⚖️ Koryguj wagę</button>
+            <button class="btn btn-ghost btn-sm" style="color:var(--clr-warning)"
+                    data-sp-action="cofnij" data-id="${o.id}">↩ Cofnij</button>
+          ` : ''}
           ${o.status === 'wydano' && !o.platnosc ? `
             <button class="btn btn-primary btn-sm"
                     data-sp-action="platnosc" data-id="${o.id}">💳 Zarejestruj płatność</button>
@@ -348,6 +354,16 @@ async function handleSprzedazAction(e) {
   const id     = btn.dataset.id;
   const o      = zamowienia.find(x => x.id === id);
   if (!o) return;
+
+  if (action === 'cofnij') {
+    const name = [o.klientImie, o.klientNazwisko].filter(Boolean).join(' ');
+    if (!confirm(`Cofnąć zamówienie klienta "${name}" z powrotem do stanu "Oczekuje"?`)) return;
+    try {
+      await updateZamowienie(id, { status: 'oczekuje' });
+      toast(`Zamówienie cofnięte — ${name}`, 'warning');
+    } catch (err) { toast(err.message, 'error'); }
+    return;
+  }
 
   if (action === 'wydaj') {
     const name = [o.klientImie, o.klientNazwisko].filter(Boolean).join(' ');

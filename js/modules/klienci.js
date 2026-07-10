@@ -3,7 +3,7 @@
 // Etap 2
 // ============================================================
 
-import { listenKlienci, addKlient, updateKlient, deleteKlient } from '../db.js';
+import { listenKlienci, addKlient, updateKlient, deleteKlient, syncKlientInZamowienia } from '../db.js';
 import { toast, openModal, closeModal, escHtml } from '../app.js';
 
 // ── Helpers ───────────────────────────────────────────────────
@@ -377,6 +377,8 @@ async function saveKlient(existing) {
 
     if (existing) {
       await updateKlient(existing.id, data);
+      // Synchronizuj dane klienta we wszystkich jego zamówieniach
+      await syncKlientInZamowienia(existing.id, data);
       toast(`"${fullName}" zaktualizowany ✓`, 'success');
     } else {
       await addKlient(data);

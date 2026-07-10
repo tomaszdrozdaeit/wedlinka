@@ -4,7 +4,7 @@
 // ============================================================
 
 const MODULE_INFO = {
-  dashboard:   { icon: '📊', name: 'Dashboard',            etap: '2', opis: 'Przegląd aktualnej szarży, szybkie akcje i kluczowe statystyki.' },
+  dashboard:   { icon: '📊', name: 'Pulpit',               etap: '2', opis: 'Przegląd aktualnej szarży, szybkie akcje i kluczowe statystyki.' },
   szarze:      { icon: '📋', name: 'Szarże',               etap: '2', opis: 'Zarządzanie szarżami produkcyjnymi — tworzenie, fazy, archiwizacja.' },
   klienci:     { icon: '👥', name: 'Klienci',              etap: '2', opis: 'Kartoteka klientów, historia zamówień, flaga dostawy.' },
   zamowienia:  { icon: '📝', name: 'Zamówienia',           etap: '2', opis: 'Zbieranie zamówień, edycja, lista dostaw.' },
