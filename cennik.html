@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description"
+        content="Aktualny cennik wyrobów masarni Wedlinka — kiełbasy, wędzonki, pasztety i więcej. Zamówienia telefoniczne i przez WhatsApp.">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#C0392B">
+
+  <!-- Open Graph (podgląd w WhatsApp/FB) -->
+  <meta property="og:title"       content="Cennik — Wędlinka Masarnia">
+  <meta property="og:description" content="Aktualny cennik wyrobów masarni Wedlinka.">
+  <meta property="og:type"        content="website">
+
+  <title>Cennik — Wędlinka Masarnia</title>
+
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+
+  <!-- Theme: apply saved preference or system default synchronously to prevent flash -->
+  <script>
+    (function() {
+      var saved = localStorage.getItem('wedlinka-theme');
+      var systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var theme = saved || (systemDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+
+  <style>
+    /* Dodatkowe style tylko dla strony cennika */
+
+    .cennik-order-box {
+      background: var(--clr-primary-bg);
+      border: 1px solid var(--clr-primary-border);
+      border-radius: var(--r-lg);
+      padding: var(--sp-6);
+      text-align: center;
+      margin: var(--sp-8) 0;
+    }
+    .cennik-order-box h2 {
+      font-size: var(--text-xl);
+      font-weight: var(--w-bold);
+      color: var(--clr-primary-light);
+      margin-bottom: var(--sp-2);
+    }
+    .cennik-order-box p {
+      color: var(--text-secondary);
+      font-size: var(--text-md);
+    }
+
+    .cennik-notice {
+      background: var(--clr-accent-bg);
+      border: 1px solid rgba(212,172,13,0.25);
+      border-radius: var(--r-md);
+      padding: var(--sp-4) var(--sp-5);
+      margin-bottom: var(--sp-6);
+      font-size: var(--text-sm);
+      color: var(--clr-accent);
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+    }
+
+    .cennik-share-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--sp-2);
+      padding: var(--sp-3) var(--sp-5);
+      background: #25D366;  /* WhatsApp green */
+      color: white;
+      font-size: var(--text-base);
+      font-weight: var(--w-semibold);
+      border-radius: var(--r-md);
+      text-decoration: none;
+      transition: var(--tr);
+      cursor: pointer;
+      border: none;
+      margin-top: var(--sp-4);
+    }
+    .cennik-share-btn:hover { opacity: 0.88; transform: translateY(-1px); }
+
+    .back-link {
+      display: none; /* pokazuje się tylko jeśli otwarty z aplikacji */
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cennik-page">
+
+    <!-- HERO HEADER -->
+    <header class="cennik-hero" style="position: relative;">
+      <button id="btn-theme-toggle" class="btn-theme-toggle"
+              style="position: absolute; top: var(--sp-4); right: var(--sp-4); font-size: 20px; z-index: 10;"
+              title="Przełącz motyw" aria-label="Przełącz motyw">☀️</button>
+      <div class="cennik-hero-content">
+        <div class="cennik-logo" aria-hidden="true">🥩</div>
+        <h1 class="cennik-brand">Wędlinka</h1>
+        <p class="cennik-tagline">Domowa masarnia — wyroby własne</p>
+        <p class="cennik-updated" id="cennik-updated">Ładowanie cennika…</p>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="cennik-container">
+
+      <!-- NOTICE — czas aktualizacji -->
+      <div class="cennik-notice" id="cennik-notice" style="display:none">
+        <span>⚠️</span>
+        <span>Ceny mogą ulec zmianie. Skontaktuj się z nami w celu potwierdzenia aktualnych cen.</span>
+      </div>
+
+      <!-- PRODUKTY — renderowane przez JS -->
+      <div id="cennik-content">
+        <div class="loading-overlay">
+          <div class="spinner"></div>
+          <p>Ładowanie cennika…</p>
+        </div>
+      </div>
+
+      <!-- ZAMÓW BOX -->
+      <div class="cennik-order-box" id="order-box" style="display:none">
+        <h2>📱 Złóż zamówienie</h2>
+        <p>Zadzwoń lub napisz przez WhatsApp, aby złożyć zamówienie na produkty z bieżącej szarży.</p>
+        <a id="whatsapp-btn" class="cennik-share-btn" href="#" target="_blank" rel="noopener">
+          💬 Napisz na WhatsApp
+        </a>
+      </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="cennik-footer">
+      <p>
+        Ceny podane w złotych (PLN) za kilogram lub za sztukę.<br>
+        Ostateczna cena jest wyliczana na podstawie faktycznej wagi wydanego towaru.
+      </p>
+      <p style="margin-top: var(--sp-3)">
+        Zamówienia przyjmujemy telefonicznie lub przez WhatsApp przed każdą szarżą produkcyjną.
+      </p>
+    </footer>
+
+  </div><!-- /.cennik-page -->
+
+  <!-- =====================================================
+       FIREBASE SDK — tylko Firestore (bez auth)
+       ===================================================== -->
+  <script type="module">
+    import { initializeApp }
+      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import {
+      getFirestore, collection, query, orderBy, onSnapshot,
+    } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+    // ── Firebase config ──────────────────────────────────
+    const firebaseConfig = {
+      apiKey:            'AIzaSyCJmD_lKFBun6gRYEYVSEhzUnznJ4uFELs',
+      authDomain:        'wedlinka-app.firebaseapp.com',
+      projectId:         'wedlinka-app',
+      storageBucket:     'wedlinka-app.firebasestorage.app',
+      messagingSenderId: '291213409116',
+      appId:             '1:291213409116:web:1d9fc8c2922a32304fdf99',
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
+
+    // ── Kategorie (musi być zgodne z app) ────────────────
+    const KATEGORIE = [
+      { id: 'kielbasky',        label: 'Kiełbasy',         icon: '🌭' },
+      { id: 'wedzonki',         label: 'Wędzonki',          icon: '🥩' },
+      { id: 'pasztety',         label: 'Pasztety',          icon: '🫙' },
+      { id: 'salcesony',        label: 'Salcesony',         icon: '🍖' },
+      { id: 'wedliny_gotowane', label: 'Wędliny gotowane',  icon: '🍗' },
+      { id: 'inne',             label: 'Inne',              icon: '🏷️'  },
+    ];
+
+    // ── Helpers ───────────────────────────────────────────
+    function esc(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function formatPrice(p) {
+      if (!p.cena && p.cena !== 0) return '—';
+      const val  = Number(p.cena).toFixed(2).replace('.', ',');
+      const unit = p.jednostka === 'szt' ? 'szt' : 'kg';
+      return `${val} zł/${unit}`;
+    }
+
+    // ── Render ────────────────────────────────────────────
+    function render(produkty) {
+      const content = document.getElementById('cennik-content');
+      const updated = document.getElementById('cennik-updated');
+      const orderBox = document.getElementById('order-box');
+      const notice   = document.getElementById('cennik-notice');
+
+      const active = produkty.filter((p) => p.aktywny !== false);
+
+      if (active.length === 0) {
+        updated.textContent = '';
+        content.innerHTML = `
+          <div class="empty-state" style="min-height:280px">
+            <div class="empty-state-icon">🥩</div>
+            <div class="empty-state-title">Cennik w przygotowaniu</div>
+            <div class="empty-state-desc">
+              Aktualny cennik na nową szarżę zostanie opublikowany wkrótce.<br>
+              W razie pytań skontaktuj się telefonicznie.
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      // Date
+      const now = new Date().toLocaleDateString('pl-PL', {
+        day: 'numeric', month: 'long', year: 'numeric',
+      });
+      updated.textContent = `Cennik aktualny na dzień: ${now}`;
+
+      // Show order box
+      orderBox.style.display = 'block';
+      notice.style.display   = 'flex';
+
+      // Group by category
+      let html = '';
+
+      KATEGORIE.forEach((kat) => {
+        const items = active.filter((p) => p.kategoria === kat.id);
+        if (items.length === 0) return;
+
+        html += `
+          <section class="cennik-category" aria-labelledby="kat-${kat.id}">
+            <h2 class="cennik-category-title" id="kat-${kat.id}">
+              ${kat.icon} ${esc(kat.label)}
+            </h2>
+            <div class="cennik-items" role="list">
+              ${items.map((p) => `
+                <div class="cennik-item" role="listitem">
+                  <div class="cennik-item-info">
+                    <div class="cennik-item-name">${esc(p.nazwa)}</div>
+                    ${p.opis ? `<div class="cennik-item-desc">${esc(p.opis)}</div>` : ''}
+                  </div>
+                  <div class="cennik-item-price">${formatPrice(p)}</div>
+                </div>
+              `).join('')}
+            </div>
+          </section>
+        `;
+      });
+
+      // Items whose category isn't in KATEGORIE list
+      const knownIds = KATEGORIE.map((k) => k.id);
+      const others   = active.filter((p) => !knownIds.includes(p.kategoria));
+      if (others.length) {
+        html += `
+          <section class="cennik-category" aria-labelledby="kat-inne">
+            <h2 class="cennik-category-title" id="kat-inne">🏷️ Pozostałe</h2>
+            <div class="cennik-items" role="list">
+              ${others.map((p) => `
+                <div class="cennik-item" role="listitem">
+                  <div class="cennik-item-info">
+                    <div class="cennik-item-name">${esc(p.nazwa)}</div>
+                    ${p.opis ? `<div class="cennik-item-desc">${esc(p.opis)}</div>` : ''}
+                  </div>
+                  <div class="cennik-item-price">${formatPrice(p)}</div>
+                </div>
+              `).join('')}
+            </div>
+          </section>
+        `;
+      }
+
+      content.innerHTML = html;
+    }
+
+    // ── Error handler ─────────────────────────────────────
+    function showError(msg) {
+      document.getElementById('cennik-content').innerHTML = `
+        <div class="empty-state" style="min-height:280px">
+          <div class="empty-state-icon">⚠️</div>
+          <div class="empty-state-title">Nie udało się załadować cennika</div>
+          <div class="empty-state-desc">${esc(msg)}<br>Odśwież stronę lub spróbuj później.</div>
+        </div>
+      `;
+    }
+
+    // ── Firebase listener (real-time, bez composite index) ───────
+    const qSimple = query(collection(db, 'produkty'));
+
+    onSnapshot(
+      qSimple,
+      (snapshot) => {
+        const produkty = snapshot.docs
+          .map((doc) => ({ id: doc.id, ...doc.data() }))
+          .sort((a, b) => {
+            const katCmp = (a.kategoria || '').localeCompare(b.kategoria || '', 'pl');
+            return katCmp !== 0 ? katCmp : (a.nazwa || '').localeCompare(b.nazwa || '', 'pl');
+          });
+        render(produkty);
+      },
+      (err) => showError(err.message)
+    );
+
+    // ── Web Share API — "Udostępnij cennik" ───────────────
+    const shareBtn = document.getElementById('whatsapp-btn');
+    if (shareBtn) {
+      const pageUrl = window.location.href.split('?')[0]; // clean url without query params
+      // Prebuilt WhatsApp link
+      shareBtn.href = `https://wa.me/?text=${encodeURIComponent('Aktualny cennik masarni Wedlinka: ' + pageUrl)}`;
+    }
+
+    // ── Theme Management ──────────────────────────────────
+    const themeBtn = document.getElementById('btn-theme-toggle');
+
+    function updateThemeIcons() {
+      const current = document.documentElement.getAttribute('data-theme') || 'dark';
+      if (themeBtn) {
+        themeBtn.textContent = current === 'dark' ? '☀️' : '🌙';
+        themeBtn.title = current === 'dark' ? 'Przełącz na jasny' : 'Przełącz na ciemny';
+      }
+    }
+
+    if (themeBtn) {
+      updateThemeIcons();
+      themeBtn.addEventListener('click', () => {
+        const current = document.documentElement.getAttribute('data-theme') || 'dark';
+        const next = current === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('wedlinka-theme', next);
+        updateThemeIcons();
+      });
+    }
+
+    // ── Auto-print if ?print=1 is present ───────────────────
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('print') === '1') {
+      // Delay printing slightly so Firestore listener renders the products first
+      setTimeout(() => {
+        window.print();
+      }, 1000);
+    }
+  </script>
+
+</body>
+</html>

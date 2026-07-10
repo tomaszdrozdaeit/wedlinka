@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="description"
+        content="Wedlinka — System zarządzania masarnią. Zamówienia, produkcja, sprzedaż i rozliczenia.">
+  <meta name="theme-color" content="#C0392B">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Wędlinka">
+
+  <title>Wędlinka — System Masarni</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+  <link rel="apple-touch-icon" href="icons/icon.svg">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- =====================================================
+       LOGIN SCREEN
+       Widoczny domyślnie; chowany po zalogowaniu
+       ===================================================== -->
+  <div id="login-screen" class="login-screen">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="logo-icon">🥩</div>
+        <h1 class="login-title">Wędlinka</h1>
+        <p class="login-subtitle">System zarządzania masarnią</p>
+      </div>
+
+      <button id="btn-google-login" class="btn btn-google" type="button">
+        <svg class="google-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="#4285F4" d="M23.745 12.27c0-.79-.07-1.54-.19-2.27h-11.3v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"/>
+          <path fill="#34A853" d="M12.255 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96h-3.98v3.09C3.515 21.3 7.615 24 12.255 24z"/>
+          <path fill="#FBBC05" d="M5.525 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62h-3.98a11.86 11.86 0 0 0 0 10.76l3.98-3.09z"/>
+          <path fill="#EA4335" d="M12.255 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C18.205 1.19 15.495 0 12.255 0c-4.64 0-8.74 2.7-10.71 6.62l3.98 3.09c.95-2.85 3.6-4.96 6.73-4.96z"/>
+        </svg>
+        Zaloguj się przez Google
+      </button>
+
+      <p class="login-info">Dostęp tylko dla autoryzowanych użytkowników masarni.</p>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       APP SHELL — widoczny po zalogowaniu
+       ===================================================== -->
+  <div id="app" class="app-shell hidden">
+
+    <!-- SIDEBAR (tablet/PC) -->
+    <nav class="sidebar" id="sidebar" aria-label="Główna nawigacja">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <span class="sidebar-logo-icon" aria-hidden="true">🥩</span>
+          <span class="sidebar-logo-text">Wędlinka</span>
+        </div>
+      </div>
+
+      <div class="sidebar-nav" role="list">
+        <a class="nav-item" href="#/dashboard"  data-route="dashboard"  role="listitem">
+          <span class="nav-icon" aria-hidden="true">📊</span>
+          <span class="nav-label">Dashboard</span>
+        </a>
+        <a class="nav-item" href="#/szarze"     data-route="szarze"     role="listitem">
+          <span class="nav-icon" aria-hidden="true">📋</span>
+          <span class="nav-label">Szarże</span>
+        </a>
+        <a class="nav-item" href="#/klienci"    data-route="klienci"    role="listitem">
+          <span class="nav-icon" aria-hidden="true">👥</span>
+          <span class="nav-label">Klienci</span>
+        </a>
+        <a class="nav-item" href="#/zamowienia" data-route="zamowienia" role="listitem">
+          <span class="nav-icon" aria-hidden="true">📝</span>
+          <span class="nav-label">Zamówienia</span>
+        </a>
+        <a class="nav-item" href="#/produkcja"  data-route="produkcja"  role="listitem">
+          <span class="nav-icon" aria-hidden="true">🏭</span>
+          <span class="nav-label">Produkcja</span>
+        </a>
+        <a class="nav-item" href="#/produkty"   data-route="produkty"   role="listitem">
+          <span class="nav-icon" aria-hidden="true">🥩</span>
+          <span class="nav-label">Produkty</span>
+        </a>
+        <a class="nav-item" href="#/sprzedaz"   data-route="sprzedaz"   role="listitem">
+          <span class="nav-icon" aria-hidden="true">💰</span>
+          <span class="nav-label">Sprzedaż</span>
+        </a>
+        <a class="nav-item" href="#/raporty"    data-route="raporty"    role="listitem">
+          <span class="nav-icon" aria-hidden="true">📈</span>
+          <span class="nav-label">Raporty</span>
+        </a>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="user-info">
+          <div class="user-avatar" id="user-avatar" aria-hidden="true">?</div>
+          <div class="user-name"   id="user-name">Ładowanie…</div>
+        </div>
+        <button class="btn-theme-toggle" id="btn-theme-sidebar"
+                title="Przełącz na jasny" aria-label="Przełącz motyw">☀️</button>
+        <button class="btn-logout" id="btn-logout" title="Wyloguj się" aria-label="Wyloguj się">
+          ⏻
+        </button>
+      </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content" id="main-content" role="main" aria-live="polite">
+      <div class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Inicjalizacja…</p>
+      </div>
+    </main>
+
+    <!-- BOTTOM NAV (mobile) -->
+    <nav class="bottom-nav" id="bottom-nav" aria-label="Nawigacja mobilna">
+      <a class="bottom-nav-item" href="#/dashboard"  data-route="dashboard">
+        <span class="bottom-nav-icon" aria-hidden="true">📊</span>
+        <span class="bottom-nav-label">Pulpit</span>
+      </a>
+      <a class="bottom-nav-item" href="#/zamowienia" data-route="zamowienia">
+        <span class="bottom-nav-icon" aria-hidden="true">📝</span>
+        <span class="bottom-nav-label">Zamówienia</span>
+      </a>
+      <a class="bottom-nav-item" href="#/szarze"     data-route="szarze">
+        <span class="bottom-nav-icon" aria-hidden="true">📋</span>
+        <span class="bottom-nav-label">Szarże</span>
+      </a>
+      <a class="bottom-nav-item" href="#/produkty"   data-route="produkty">
+        <span class="bottom-nav-icon" aria-hidden="true">🥩</span>
+        <span class="bottom-nav-label">Produkty</span>
+      </a>
+      <a class="bottom-nav-item" href="#/raporty"    data-route="raporty">
+        <span class="bottom-nav-icon" aria-hidden="true">📈</span>
+        <span class="bottom-nav-label">Raporty</span>
+      </a>
+    </nav>
+
+  <!-- Floating theme toggle (mobile) -->
+  <button class="theme-float-btn" id="btn-theme-float"
+          title="Przełącz motyw" aria-label="Przełącz motyw">☀️</button>
+
+  </div><!-- /#app -->
+
+  <!-- =====================================================
+       TOAST NOTIFICATIONS
+       ===================================================== -->
+  <div id="toast-container" class="toast-container" role="status" aria-live="polite"></div>
+
+  <!-- =====================================================
+       MODAL DIALOG
+       ===================================================== -->
+  <div id="modal-overlay" class="modal-overlay hidden" role="dialog" aria-modal="true">
+    <div class="modal" id="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-title"></h2>
+        <button class="modal-close" id="modal-close" type="button" aria-label="Zamknij">✕</button>
+      </div>
+      <div class="modal-body" id="modal-body"></div>
+      <!-- modal-footer wstawiany dynamicznie przez openModal() -->
+    </div>
+  </div>
+
+  <!-- =====================================================
+       SCRIPTS
+       ===================================================== -->
+  <!-- Theme: apply saved preference or system default synchronously to prevent flash -->
+  <script>
+    (function() {
+      var saved = localStorage.getItem('wedlinka-theme');
+      var systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var theme = saved || (systemDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+    })();
+  </script>
+
+  <script type="module" src="js/app.js"></script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js')
+          .then((reg) => {
+            console.log('Service Worker zarejestrowany:', reg.scope);
+            // Sprawdź aktualizacje przy każdej nawigacji
+            reg.update();
+          })
+          .catch((err) => console.warn('SW: błąd rejestracji:', err));
+      });
+    }
+  </script>
+
+</body>
+</html>
