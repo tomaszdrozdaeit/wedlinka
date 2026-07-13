@@ -229,6 +229,32 @@ function init() {
   updateThemeIcons();  // sync icons with saved theme
   document.getElementById('btn-theme-sidebar')?.addEventListener('click', toggleTheme);
   document.getElementById('btn-theme-float')?.addEventListener('click', toggleTheme);
+  document.getElementById('btn-drawer-theme')?.addEventListener('click', toggleTheme);
+
+  // --- Drawer controls ---
+  const btnMoreMenu    = document.getElementById('btn-more-menu');
+  const drawerOverlay  = document.getElementById('drawer-overlay');
+  const drawerPanel    = document.getElementById('drawer-panel');
+
+  const openDrawer = () => {
+    drawerOverlay?.classList.remove('hidden');
+    drawerPanel?.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeDrawer = () => {
+    drawerOverlay?.classList.add('hidden');
+    drawerPanel?.classList.add('hidden');
+    document.body.style.overflow = '';
+  };
+
+  btnMoreMenu?.addEventListener('click', openDrawer);
+  drawerOverlay?.addEventListener('click', closeDrawer);
+
+  // Close drawer on link click
+  document.querySelectorAll('.drawer-item').forEach(item => {
+    item.addEventListener('click', closeDrawer);
+  });
 
   // --- Logout button ---
   const logoutBtn = document.getElementById('btn-logout');
@@ -250,10 +276,15 @@ function init() {
     });
   }
 
-  // --- Keyboard: Escape closes modal ---
+  // --- Keyboard: Escape closes modal & drawer ---
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modalOverlay && !modalOverlay.classList.contains('hidden')) {
-      closeModal();
+    if (e.key === 'Escape') {
+      if (modalOverlay && !modalOverlay.classList.contains('hidden')) {
+        closeModal();
+      }
+      if (drawerPanel && !drawerPanel.classList.contains('hidden')) {
+        closeDrawer();
+      }
     }
   });
 
@@ -287,10 +318,14 @@ function updateThemeIcons() {
   const current = document.documentElement.getAttribute('data-theme') || 'dark';
   const icon    = current === 'dark' ? '☀️' : '🌙';
   const title   = current === 'dark' ? 'Przełącz na jasny' : 'Przełącz na ciemny';
-  ['btn-theme-sidebar', 'btn-theme-float'].forEach(id => {
+  ['btn-theme-sidebar', 'btn-theme-float', 'btn-drawer-theme'].forEach(id => {
     const btn = document.getElementById(id);
     if (!btn) return;
-    btn.textContent = icon;
+    if (id === 'btn-drawer-theme') {
+      btn.textContent = `${icon} Przełącz motyw`;
+    } else {
+      btn.textContent = icon;
+    }
     btn.title       = title;
     btn.setAttribute('aria-label', title);
   });

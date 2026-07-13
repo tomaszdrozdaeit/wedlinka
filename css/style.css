@@ -360,7 +360,7 @@ h1, h2, h3, h4 { line-height: 1.2; }
 }
 
 /* ============================================================
-   BOTTOM NAVIGATION (Mobile)
+   BOTTOM NAVIGATION (Mobile) — 4 icons + "Więcej" drawer
    ============================================================ */
 
 .bottom-nav {
@@ -373,7 +373,7 @@ h1, h2, h3, h4 { line-height: 1.2; }
   z-index: 100;
   padding: 0 var(--sp-2);
   padding-bottom: env(safe-area-inset-bottom, 0);
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   align-items: center;
 }
 
@@ -385,10 +385,94 @@ h1, h2, h3, h4 { line-height: 1.2; }
   border-radius: var(--r-md);
   transition: var(--tr);
   color: var(--text-muted);
+  -webkit-tap-highlight-color: transparent;
+}
+/* Reset for <button> "Więcej" */
+button.bottom-nav-item {
+  background: none; border: none; cursor: pointer; font: inherit;
 }
 .bottom-nav-item.active   { color: var(--clr-primary-light); }
 .bottom-nav-icon   { font-size: 21px; }
 .bottom-nav-label  { font-size: 10px; font-weight: var(--w-medium); white-space: nowrap; }
+
+/* ── Drawer Overlay ────────────────────────── */
+.drawer-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 200;
+  animation: drawerFadeIn 0.2s ease;
+}
+.drawer-overlay:not(.hidden) { display: block; }
+
+/* ── Drawer Panel ──────────────────────────── */
+.drawer-panel {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: var(--bg-card);
+  border-top-left-radius: var(--r-xl);
+  border-top-right-radius: var(--r-xl);
+  z-index: 201;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.45);
+  animation: drawerSlideUp 0.25s ease;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.drawer-panel:not(.hidden) { display: block; }
+
+.drawer-handle {
+  width: 36px; height: 4px;
+  background: var(--border-strong);
+  border-radius: var(--r-full);
+  margin: var(--sp-3) auto var(--sp-2);
+}
+
+.drawer-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--sp-3);
+}
+
+.drawer-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-4) var(--sp-4);
+  border-radius: var(--r-md);
+  color: var(--text-primary);
+  font-size: var(--text-md);
+  font-weight: var(--w-medium);
+  transition: var(--tr);
+  -webkit-tap-highlight-color: transparent;
+}
+.drawer-item:hover,
+.drawer-item:active { background: var(--bg-hover); }
+.drawer-item.active {
+  color: var(--clr-primary-light);
+  background: var(--clr-primary-bg);
+}
+.drawer-icon { font-size: 22px; width: 28px; text-align: center; flex-shrink: 0; }
+.drawer-label { flex: 1; }
+
+.drawer-footer {
+  padding: var(--sp-3) var(--sp-4);
+  border-top: 1px solid var(--border);
+  margin-top: var(--sp-2);
+  display: flex;
+  justify-content: center;
+}
+
+@keyframes drawerSlideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+@keyframes drawerFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
 
 /* ============================================================
    PAGE HEADER
@@ -1046,12 +1130,12 @@ h1, h2, h3, h4 { line-height: 1.2; }
     position: static; /* no sticky on mobile — saves space */
   }
   .page-title        { font-size: var(--text-xl); }
-  .page-actions      { width: 100%; }
+  .page-actions      { width: 100%; flex-wrap: wrap; }
   .search-wrapper    { max-width: 100%; flex: 1; }
   .content-area      { padding: var(--sp-4); }
 
   .products-grid     { grid-template-columns: 1fr; padding: var(--sp-4); }
-  .category-tabs     { padding: var(--sp-3) var(--sp-4); }
+  .category-tabs     { padding: var(--sp-3) var(--sp-4); -webkit-overflow-scrolling: touch; }
   .form-row          { grid-template-columns: 1fr; }
   .radio-group       { flex-direction: column; }
 
@@ -1065,6 +1149,24 @@ h1, h2, h3, h4 { line-height: 1.2; }
   .cennik-container  { padding: var(--sp-4); }
   .cennik-item       { flex-direction: column; align-items: flex-start; gap: var(--sp-2); }
   .cennik-item-price { text-align: left; }
+
+  /* Stats grid mobile responsive */
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: var(--sp-2) !important;
+  }
+  .stat-card {
+    padding: var(--sp-3) var(--sp-4) !important;
+  }
+  .stat-value {
+    font-size: var(--text-xl) !important;
+  }
+
+  /* Table responsive wrap */
+  .summary-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 /* Tablet — 769–1024px */

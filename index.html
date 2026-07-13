@@ -134,19 +134,52 @@
         <span class="bottom-nav-icon" aria-hidden="true">📝</span>
         <span class="bottom-nav-label">Zamówienia</span>
       </a>
-      <a class="bottom-nav-item" href="#/szarze"     data-route="szarze">
-        <span class="bottom-nav-icon" aria-hidden="true">📋</span>
-        <span class="bottom-nav-label">Szarże</span>
+      <a class="bottom-nav-item" href="#/sprzedaz"   data-route="sprzedaz">
+        <span class="bottom-nav-icon" aria-hidden="true">💰</span>
+        <span class="bottom-nav-label">Sprzedaż</span>
       </a>
-      <a class="bottom-nav-item" href="#/produkty"   data-route="produkty">
-        <span class="bottom-nav-icon" aria-hidden="true">🥩</span>
-        <span class="bottom-nav-label">Produkty</span>
-      </a>
-      <a class="bottom-nav-item" href="#/raporty"    data-route="raporty">
-        <span class="bottom-nav-icon" aria-hidden="true">📈</span>
-        <span class="bottom-nav-label">Raporty</span>
-      </a>
+      <button class="bottom-nav-item" id="btn-more-menu" type="button" aria-label="Więcej opcji">
+        <span class="bottom-nav-icon" aria-hidden="true">⋯</span>
+        <span class="bottom-nav-label">Więcej</span>
+      </button>
     </nav>
+
+    <!-- DRAWER MENU (mobile "Więcej") -->
+    <div class="drawer-overlay hidden" id="drawer-overlay"></div>
+    <div class="drawer-panel hidden" id="drawer-panel" role="navigation" aria-label="Pełne menu">
+      <div class="drawer-handle"></div>
+      <div class="drawer-nav">
+        <a class="drawer-item" href="#/dashboard"  data-route="dashboard">
+          <span class="drawer-icon">📊</span><span class="drawer-label">Pulpit</span>
+        </a>
+        <a class="drawer-item" href="#/szarze"     data-route="szarze">
+          <span class="drawer-icon">📋</span><span class="drawer-label">Szarże</span>
+        </a>
+        <a class="drawer-item" href="#/klienci"    data-route="klienci">
+          <span class="drawer-icon">👥</span><span class="drawer-label">Klienci</span>
+        </a>
+        <a class="drawer-item" href="#/zamowienia" data-route="zamowienia">
+          <span class="drawer-icon">📝</span><span class="drawer-label">Zamówienia</span>
+        </a>
+        <a class="drawer-item" href="#/produkcja"  data-route="produkcja">
+          <span class="drawer-icon">🏭</span><span class="drawer-label">Produkcja</span>
+        </a>
+        <a class="drawer-item" href="#/produkty"   data-route="produkty">
+          <span class="drawer-icon">🥩</span><span class="drawer-label">Produkty</span>
+        </a>
+        <a class="drawer-item" href="#/sprzedaz"   data-route="sprzedaz">
+          <span class="drawer-icon">💰</span><span class="drawer-label">Sprzedaż</span>
+        </a>
+        <a class="drawer-item" href="#/raporty"    data-route="raporty">
+          <span class="drawer-icon">📈</span><span class="drawer-label">Raporty</span>
+        </a>
+      </div>
+      <div class="drawer-footer">
+        <button class="btn btn-ghost" id="btn-drawer-theme" style="color:var(--text-secondary)">
+          ☀️ Przełącz motyw
+        </button>
+      </div>
+    </div>
 
   <!-- Floating theme toggle (mobile) -->
   <button class="theme-float-btn" id="btn-theme-float"
