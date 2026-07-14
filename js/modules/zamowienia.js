@@ -5,7 +5,7 @@
 
 import {
   listenSzarze, listenZamowienia, listenKlienci, listenProdukty,
-  addZamowienie, updateZamowienie, deleteZamowienie,
+  addZamowienie, updateZamowienie, deleteZamowienie, addKlient,
 } from '../db.js';
 import { toast, openModal, closeModal, escHtml } from '../app.js';
 
@@ -13,6 +13,7 @@ import { toast, openModal, closeModal, escHtml } from '../app.js';
 let allSzarze   = [];
 let allKlienci  = [];
 let allProdukty = [];
+let tempOrderState = null; // Holds modal state when quickly adding a new client
 let zamowienia  = [];
 let activeBatch = null;
 
@@ -592,7 +593,6 @@ function openOrderModal(existing) {
   const filteredOut = allKlienci.length - klienci.length;
   const produkty    = allProdukty.filter(p => p.aktywny !== false);
 
-
   // Build picked state from existing order
   const picked = {};   // produktId → { ilosc: number }
   if (isEdit && existing.pozycje) {
@@ -614,6 +614,9 @@ function openOrderModal(existing) {
 
   // Bind qty controls inside modal
   bindPickerEvents(produkty, picked);
+  
+  // Bind order form actions
+  bindOrderFormActions(existing, produkty, picked);
 }
 
 function buildOrderForm(klienci, produkty, picked, selectedKlientId, notatki, spoznione, filteredOut = 0) {
@@ -665,10 +668,15 @@ function buildOrderForm(klienci, produkty, picked, selectedKlientId, notatki, sp
 
       <div class="form-group">
         <label class="form-label" for="o-klient">Klient *</label>
-        <select class="form-select" id="o-klient">
-          <option value="">— wybierz klienta —</option>
-          ${klientOptions}
-        </select>
+        <div style="display:flex; gap:var(--sp-2); align-items:stretch;">
+          <select class="form-select" id="o-klient" style="flex:1; min-width:0;">
+            <option value="">— wybierz klienta —</option>
+            ${klientOptions}
+          </select>
+          <button type="button" class="btn btn-secondary" id="btn-order-add-klient" style="padding:0 var(--sp-4); flex-shrink:0; display:flex; align-items:center; justify-content:center; gap:var(--sp-1);" title="Szybkie dodanie nowego klienta">
+            ➕ Nowy
+          </button>
+        </div>
         ${filteredNote}
       </div>
 
@@ -705,6 +713,223 @@ function buildOrderForm(klienci, produkty, picked, selectedKlientId, notatki, sp
 
     </form>
   `;
+}
+
+// ── Quick client creation helpers inside order process ──
+
+function formatPhone(raw) {
+  const digits = raw.replace(/\D/g, '').slice(0, 9);
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 6) return `${digits.slice(0, 3)} ${digits.slice(3)}`;
+  return `${digits.slice(0, 3)} ${digits.slice(3, 6)} ${digits.slice(6)}`;
+}
+
+function bindOrderFormActions(existing, produkty, picked) {
+  document.getElementById('btn-order-add-klient')?.addEventListener('click', () => {
+    const currentKlientId = document.getElementById('o-klient')?.value || '';
+    const currentNotatki  = document.getElementById('o-notatki')?.value || '';
+    const currentSpoznione = document.getElementById('o-spoznione')?.checked || false;
+
+    tempOrderState = {
+      existing,
+      picked,
+      selectedKlientId: currentKlientId,
+      notatki: currentNotatki,
+      spoznione: currentSpoznione
+    };
+
+    closeModal();
+    setTimeout(() => {
+      openQuickKlientModal();
+    }, 150);
+  });
+}
+
+function openQuickKlientModal() {
+  openModal(
+    'Szybkie dodawanie Klienta',
+    `
+    <form id="quick-klient-form" autocomplete="off" novalidate>
+      <div class="form-row">
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label" for="qk-imie">Imię</label>
+          <input class="form-input" type="text" id="qk-imie" placeholder="Jan">
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label" for="qk-nazwisko">Nazwisko *</label>
+          <input class="form-input" type="text" id="qk-nazwisko" placeholder="Kowalski">
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top:var(--sp-5)">
+        <label class="form-label" for="qk-telefon">Numer telefonu</label>
+        <input class="form-input" type="text" inputmode="tel" id="qk-telefon"
+               placeholder="500 600 700" maxlength="11" autocomplete="tel">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Sposób odbioru *</label>
+        <div class="radio-group">
+          <label class="radio-option selected" id="qro-osobisty">
+            <input type="radio" name="qdostawa" value="0" checked>
+            <div class="radio-custom"></div>
+            <span class="radio-label">🏠 Odbierze osobiście</span>
+          </label>
+          <label class="radio-option" id="qro-dostawa">
+            <input type="radio" name="qdostawa" value="1">
+            <div class="radio-custom"></div>
+            <span class="radio-label">🚗 Trzeba dowieźć</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="form-group" id="qadres-group" style="display:none">
+        <label class="form-label" for="qk-adres">Adres dostawy</label>
+        <input class="form-input" type="text" id="qk-adres" placeholder="ul. Przykładowa 1, Miejscowość">
+      </div>
+    </form>
+    `,
+    {
+      confirmText: 'Dodaj Klienta',
+      cancelText: 'Wróć do zamówienia',
+      onConfirm: saveQuickKlient,
+    }
+  );
+
+  // Phone number key and formatting events
+  const phoneInput = document.getElementById('qk-telefon');
+  if (phoneInput) {
+    phoneInput.addEventListener('keydown', (e) => {
+      const ctrl = e.ctrlKey || e.metaKey || e.altKey;
+      const nav  = ['Backspace','Delete','ArrowLeft','ArrowRight',
+                    'ArrowUp','ArrowDown','Tab','Home','End'].includes(e.key);
+      if (!ctrl && !nav && !/^\d$/.test(e.key)) e.preventDefault();
+    });
+
+    phoneInput.addEventListener('input', () => {
+      const pos  = phoneInput.selectionStart ?? phoneInput.value.length;
+      const raw  = phoneInput.value;
+      const fmt  = formatPhone(raw);
+      if (raw !== fmt) {
+        phoneInput.value = fmt;
+        const spacesBefore = (fmt.slice(0, pos).match(/ /g) || []).length -
+                             (raw.slice(0, pos).match(/ /g) || []).length;
+        try { phoneInput.setSelectionRange(pos + spacesBefore, pos + spacesBefore); } catch {}
+      }
+    });
+  }
+
+  // Delivery toggle events
+  document.querySelectorAll('input[name="qdostawa"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      document.querySelectorAll('#quick-klient-form .radio-option').forEach(o => o.classList.remove('selected'));
+      radio.closest('.radio-option').classList.add('selected');
+      const showAdres = radio.value === '1';
+      const grp = document.getElementById('qadres-group');
+      if (grp) grp.style.display = showAdres ? 'block' : 'none';
+    });
+  });
+
+  document.querySelectorAll('#quick-klient-form .radio-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      const radio = opt.querySelector('input[type=radio]');
+      if (radio) radio.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+  });
+
+  // Restore order form modal if quick-add is closed/cancelled
+  const cancelBtn = document.getElementById('modal-cancel');
+  if (cancelBtn) {
+    cancelBtn.onclick = () => {
+      closeModal();
+      setTimeout(restoreOrderModal, 150);
+    };
+  }
+  const closeBtn = document.getElementById('modal-close');
+  if (closeBtn) {
+    closeBtn.onclick = () => {
+      closeModal();
+      setTimeout(restoreOrderModal, 150);
+    };
+  }
+}
+
+async function saveQuickKlient() {
+  const imie      = document.getElementById('qk-imie')?.value.trim();
+  const nazwisko  = document.getElementById('qk-nazwisko')?.value.trim();
+  const telefon   = document.getElementById('qk-telefon')?.value.trim();
+  const dostawa   = document.querySelector('input[name="qdostawa"]:checked')?.value === '1';
+  const adresDost = document.getElementById('qk-adres')?.value.trim();
+
+  if (!nazwisko) {
+    toast('Wpisz nazwisko klienta', 'warning');
+    document.getElementById('qk-nazwisko')?.focus();
+    return;
+  }
+
+  const btn = document.getElementById('modal-confirm');
+  if (btn) { btn.disabled = true; btn.textContent = 'Zapisywanie…'; }
+
+  const fullName = [imie, nazwisko].filter(Boolean).join(' ');
+
+  try {
+    const data = {
+      imie:      imie      || '',
+      nazwisko:  nazwisko,
+      telefon:   telefon   || '',
+      dostawa,
+      adresDost: adresDost || '',
+      stalKlient: false,
+    };
+
+    const ref = await addKlient(data);
+    toast(`"${fullName}" dodany ✓`, 'success');
+    
+    if (tempOrderState) {
+      tempOrderState.selectedKlientId = ref.id;
+    }
+    
+    closeModal();
+    setTimeout(restoreOrderModal, 150);
+  } catch (err) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Dodaj Klienta'; }
+    toast('Błąd: ' + err.message, 'error');
+  }
+}
+
+function restoreOrderModal() {
+  if (!tempOrderState) return;
+  const { existing, picked, selectedKlientId, notatki, spoznione } = tempOrderState;
+  tempOrderState = null;
+
+  const isEdit = !!existing;
+  const takenIds = new Set(
+    zamowienia
+      .filter(z => z.status !== 'anulowano' && z.id !== (existing?.id))
+      .map(z => z.klientId)
+      .filter(Boolean)
+  );
+
+  const klienci = [...allKlienci]
+    .filter(k => !takenIds.has(k.id))
+    .sort((a, b) => (a.nazwisko || '').localeCompare(b.nazwisko || '', 'pl'));
+
+  const filteredOut = allKlienci.length - klienci.length;
+  const produkty    = allProdukty.filter(p => p.aktywny !== false);
+
+  openModal(
+    isEdit ? 'Edytuj Zamówienie' : 'Nowe Zamówienie',
+    buildOrderForm(klienci, produkty, picked, selectedKlientId, notatki, spoznione, filteredOut),
+    {
+      confirmText:  isEdit ? 'Zapisz zmiany' : 'Zapisz Zamówienie',
+      confirmClass: 'btn-primary',
+      maxWidth:     '680px',
+      onConfirm:    () => saveOrder(existing, picked),
+    }
+  );
+
+  bindPickerEvents(produkty, picked);
+  bindOrderFormActions(existing, produkty, picked);
 }
 
 function bindPickerEvents(produkty, picked) {

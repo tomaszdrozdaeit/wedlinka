@@ -1167,6 +1167,77 @@ button.bottom-nav-item {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
   }
+
+  /* Full screen / Sheet modal on mobile to maximize available space */
+  .modal-overlay {
+    padding: 0 !important;
+    align-items: stretch !important;
+  }
+  .modal {
+    max-height: 100vh !important;
+    height: 100% !important;
+    border-radius: 0 !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    border: none !important;
+    display: flex;
+    flex-direction: column;
+  }
+  .modal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--sp-4) !important;
+  }
+  .modal-header {
+    position: sticky;
+    top: 0;
+    background: var(--bg-card);
+    z-index: 10;
+    border-bottom: 1px solid var(--border);
+    padding: var(--sp-4) var(--sp-4) !important;
+  }
+  .modal-footer {
+    position: sticky;
+    bottom: 0;
+    background: var(--bg-card);
+    z-index: 10;
+    border-top: 1px solid var(--border);
+    padding: var(--sp-4) var(--sp-4) !important;
+  }
+
+  /* Expand product picker scroll box to scroll with the page, avoiding scroll-inside-scroll */
+  .product-picker {
+    max-height: none !important;
+    overflow-y: visible !important;
+  }
+
+  /* Spacious, touch-friendly product list rows for non-tech-savvy users */
+  .product-pick-row {
+    padding: var(--sp-4) var(--sp-3) !important;
+  }
+  .product-pick-row.selected {
+    background: var(--clr-primary-bg) !important;
+    border-left: 4px solid var(--clr-primary) !important;
+  }
+  .product-pick-name {
+    font-size: var(--text-md) !important;
+  }
+  .product-pick-price {
+    font-size: var(--text-sm) !important;
+  }
+
+  /* Prominent quantity inputs and buttons (easy to tap) */
+  .qty-btn {
+    width: 50px !important;
+    height: 50px !important;
+    font-size: 26px !important;
+    border-radius: var(--r-md) !important;
+  }
+  .qty-input {
+    width: 66px !important;
+    height: 50px !important;
+    font-size: var(--text-lg) !important;
+  }
 }
 
 /* Tablet — 769–1024px */

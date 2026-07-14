@@ -3,7 +3,7 @@
 // Wersja: 1.0.0
 // ============================================================
 
-const CACHE_NAME = 'wedlinka-v10';
+const CACHE_NAME = 'wedlinka-v11';
 
 const ASSETS_TO_CACHE = [
   './',
